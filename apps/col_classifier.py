@@ -24,9 +24,6 @@ with app.setup(hide_code=True):
     import os
     import requests
     from dotenv import load_dotenv
-
-    load_dotenv()
-    ACCESS_TOKEN = os.getenv("STRAVA_ACCESS_TOKEN")
     import json
     from types import SimpleNamespace as Namespace
 
@@ -45,8 +42,33 @@ def intro():
     return
 
 
+@app.cell
+def _():
+    if (mo.app_meta().mode != 'script'):
+        text = mo.ui.text(
+            placeholder="Enter your Strava Access Token",
+            label="Your Access Token",
+            full_width=True,
+        ).form()
+    else:
+        text = None
+    text
+    return (text,)
+
+
+@app.cell
+def _(text):
+    if (mo.app_meta().mode == 'script'):
+        load_dotenv()
+        ACCESS_TOKEN = os.getenv("STRAVA_ACCESS_TOKEN")
+    else:
+        mo.stop(predicate=text.value is None)
+        ACCESS_TOKEN = text.value
+    return (ACCESS_TOKEN,)
+
+
 @app.cell(hide_code=True)
-def get_segment_options():
+def get_segment_options(ACCESS_TOKEN):
     def get_athletes_segments(access_token, page=1) -> dict:
         url = f"https://www.strava.com/api/v3/segments/starred?page={page}&per_page=30"
         headers = {"Authorization": f"Bearer {access_token}"}
@@ -73,7 +95,7 @@ def get_segment_options():
 
 
 @app.cell(hide_code=True)
-def choose_segment(dropdown):
+def choose_segment(ACCESS_TOKEN, dropdown):
     segment_id = dropdown.value
 
     def get_segment_data(segment_id, access_token):
@@ -124,7 +146,7 @@ def calculate_directness_cell(segment):
         )
         return (segment.elevation_high - segment.elevation_low) / gain
     directness = calculate_directness(segment)
-    return
+    return (directness,)
 
 
 @app.cell(hide_code=True)
@@ -181,7 +203,7 @@ def display_segment_map(segment):
 
 
 @app.cell(hide_code=True)
-def get_segment_elevation_data(segment_id):
+def get_segment_elevation_data(ACCESS_TOKEN, segment_id):
     def get_segment_elevation(segment_id, access_token):
         """
         Retrieve the altitude and distance streams for the given Strava segment.
@@ -274,6 +296,19 @@ def gradient_plot(dist_axis, ele_axis, plt, segment_name):
     plt.ylabel("Gradient (%)")
     plt.grid(True)
     plt.gca()
+    return
+
+
+@app.cell(hide_code=True)
+def _(directness):
+    mo.md(f"""
+    ## Our Insights
+    Now, let's take a look at the insights we have derived.
+
+    | Metric | value |
+    | :-- | --: |
+    | Directness | {directness} |
+    """)
     return
 
 

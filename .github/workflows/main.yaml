@@ -33,7 +33,7 @@ jobs:
       # Run the build script to export notebooks to WebAssembly
       - name: 🛠️ Export notebooks
         run: |
-          uv run .github/scripts/build.py  # This script exports all notebooks to the _site directory
+          uv run .github/scripts/build.py --template templates/bare.html.j2 # This script exports all notebooks to the _site directory
           tree _site                       # Display the exported files
     
       # Upload the generated site as an artifact for the deploy job
