@@ -1,6 +1,18 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#     "folium==0.20.0",
+#     "marimo>=0.23.8",
+#     "matplotlib==3.10.9",
+#     "polyline==2.0.4",
+#     "python-dotenv==1.2.2",
+#     "requests==2.34.2",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.23.3"
+__generated_with = "0.23.8"
 app = marimo.App(
     width="full",
     app_title="Col Compare",
